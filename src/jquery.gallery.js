@@ -1,184 +1,179 @@
-﻿; (function ($) {
-    $.fn.gallery = function (options) {
-        var opt = {
-            thumWidth: 110,              //缩略图的宽度
-            thumGap: 8,                  //缩略图之间的距离
-            thumMoveStep: 5,             //一次移动的数量
-            moveSpeed: 300,              //移动的速度
-            fadeSpeed: 300,              //淡入淡出的速度
-            end: '',
-            bigImg: ".bigImg",
-            prevImg: ".prevImg",
-            nextImg: ".nextImg",
-            thumbBox: ".thumbBox",
-            thumbList: ".thumbList",
-            prevPage: ".prevPage",
-            nextPage: ".nextPage",
-            selectClass: "",
-            defaultImgIndex: 0,
-            onImgChanged: null
-        }
-        $.extend(opt, options);
-        return this.each(function () {
-            var $this = $(this);
-            var $bigImg = $this.find(opt.bigImg);
-            var $thumbBox = $this.find(opt.thumbBox);
-            var $thumbList = $thumbBox.find(opt.thumbList);
-            var $thumItems = $thumbList.children();
+﻿/**
+ * jquery.gallery.js v0.1.0
+ * MIT License
+ * author info pls visit: http://luopq.com
+ * for more info pls visit: https://github.com/LuoPQ/jquery.gallery.js
+ */
+; (function ($, window, document, undefined) {
 
-            var $nextBtn = $this.find(opt.nextImg);
-            var $prevBtn = $this.find(opt.prevImg);
-            var $nextPageBtn = $this.find(opt.nextPage);
-            var $prevPageBtn = $this.find(opt.prevPage);
-
-            var objNum = $thumItems.length;
-            var currentIndex = opt.defaultImgIndex;
-
-            var currentPage = 0;
-
-            var totalPage = Math.ceil(objNum / opt.thumMoveStep);
-            var oldImg;
-
-            init();
-
-            function init() {
-                initDom();
-                setEvent();
-                changeImg();
-            }
-
-            function initDom() {
-                //添加选中框到缩略图中
-                //$thumbList.append($thumLine.get())
-
-                $thumbList.css({
-                    "position": "relative",
-                    "width": (opt.thumWidth + opt.thumGap) * objNum,
-                });
-
-                var width = $bigImg.width();
-                var height = $bigImg.height();
-                $bigImg.wrap("<div style='width:" + width + "px;height:" + height + "px;margin:0 auto;'></div>");
-            }
-
-            //绑定事件
-            function setEvent() {
-                $thumItems.on('click', function (e) {
-                    e.preventDefault();
-                    currentIndex = $(this).index();
-                    changeImg();
-                });
-                $nextBtn.on('click', function () {
-                    if (currentIndex < objNum - 1) {
-                        currentIndex++;
-                        changeImg();
-                        currentPage = Math.floor(currentIndex / opt.thumMoveStep);
-                        moveThum();
-                    }
-                });
-                $prevBtn.on('click', function () {
-                    if (currentIndex > 0) {
-                        currentIndex--;
-                        changeImg();
-                        currentPage = Math.floor(currentIndex / opt.thumMoveStep);
-                        moveThum();
-                    }
-                });
-                $nextPageBtn.on('click', function () {
-                    if (currentPage < totalPage - 1) {
-                        currentPage++;
-                        moveThum();
-                    }
-                });
-                $prevPageBtn.on('click', function () {
-                    if (currentPage > 0) {
-                        currentPage--;
-                        moveThum();
-                    }
-                });
-
-                $bigImg.on({
-                    "mousemove": function (event) {
-                        var x = event.offsetX || (event.clientX - $bigImg.offset().left);
-
-                        if (x < ($bigImg.width() / 2)) {
-                            //$imgWin.css("cursor", "pointer");
-                        }
-                        else {
-                            //$imgWin.css("cursor", "move");
-                        }
-                    },
-                    "mouseout": function () {
-                        //$imgWin.css("cursor", "auto");
-                    },
-                    "click": function (event) {
-                        var x = event.offsetX || (event.clientX - $bigImg.offset().left);
-
-                        if (x < ($bigImg.width() / 2)) {
-                            $prevBtn.trigger("click");
-                        }
-                        else {
-                            $nextBtn.trigger("click");
-                        }
-                    }
-                })
-                $(document).on("keydown", function (event) {
-                    var code = event.keyCode || event.which;
-                    switch (code) {
-                        case 37:
-                            $prevBtn.trigger("click");
-                            break;
-                        case 39:
-                            $nextBtn.trigger("click");
-                            break;
-                        default:
-
-                    }
-                })
-            }
-
-            //移动缩略图
-            function moveThum() {
-                var pos = ((opt.thumWidth + opt.thumGap) * opt.thumMoveStep) * currentPage
-                $thumbList.animate({ 'left': -pos }, opt.moveSpeed);
-                //
-                setVisibleBtn();
-            }
-
-            //设置按钮是否可见
-            function setVisibleBtn() {
-                $prevPageBtn.show();
-                $nextPageBtn.show();
-                $prevBtn.show();
-                $nextBtn.show();
-                if (currentPage == 0) {
-                    $prevPageBtn.hide();
-                }
-
-                if (currentPage == totalPage - 1) {
-                    $nextPageBtn.hide();
-                }
-                if (currentIndex == 0) {
-                    $prevBtn.hide();
-                }
-                if (currentIndex == objNum - 1) {
-                    $nextBtn.hide();
-                }
-            }
-
-            //改变大图
-            function changeImg() {
-
-                //获取原图并设置到大图位置
-                var $thum = $thumItems.eq(currentIndex)
-                $thum.addClass(opt.selectClass).siblings().removeClass(opt.selectClass);
-                var _src = $thum.find('a').attr('href');
-                $bigImg.hide().attr('src', _src).fadeIn();
-
-                setVisibleBtn();
-
-                opt.onImgChanged && opt.onImgChanged.call($thum, currentIndex);
-            }
-        })
+    var defaults = {
+        thumMoveStep: 5,             //一次移动的数量
+        moveSpeed: 300,              //移动的速度
+        fadeSpeed: 300,              //淡入淡出的速度
+        selectClass: null,
+        imageIndex: 0,
+        bigImg: ".bigImg",
+        prevImg: ".prevImg",
+        nextImg: ".nextImg",
+        thumbList: ".thumbList",
+        prevPage: ".prevPage",
+        nextPage: ".nextPage",
+        onImgChanged: null
     }
-})(jQuery);
+
+    function Gallery($ele, opt) {
+        opt = this.opt = $.extend(defaults, opt);
+
+        this.$ele = $ele;
+        this.$bigImg = $ele.find(opt.bigImg);
+        this.$thumbList = $ele.find(opt.thumbList);
+        this.$thumItems = this.$thumbList.children();
+
+        this.$nextBtn = $ele.find(opt.nextImg);
+        this.$prevBtn = $ele.find(opt.prevImg);
+        this.$nextPageBtn = $ele.find(opt.nextPage);
+        this.$prevPageBtn = $ele.find(opt.prevPage);
+
+        this.itemCount = this.$thumItems.length;
+        this.imageIndex = opt.imageIndex;
+        this.pageIndex = 0;
+        this.pageCount = Math.ceil(this.itemCount / opt.thumMoveStep);
+
+        this.init();
+    }
+    Gallery.prototype = {
+        constructor: Gallery,
+        init: function () {
+            this.wrapDom();
+            this.bindEvent();
+            this.changeImg();
+        },
+        wrapDom: function () {
+            this.$thumbList.css({
+                "position": "relative",
+                "width": this.$thumItems.outerWidth(true) * this.itemCount,
+            });
+
+            this.$bigImg.wrap("<div style='width:" + this.$bigImg.width() + "px;height:" + this.$bigImg.height() + "px;margin:0 auto;'></div>");
+        },
+        bindEvent: function () {
+            var that = this;
+
+            that.$thumItems.on('click', function (e) {
+                e.preventDefault();
+                that.imageIndex = $(this).index();
+                that.changeImg();
+            });
+            that.$nextBtn.on('click', function () {
+                if (that.imageIndex < that.itemCount - 1) {
+                    that.imageIndex++;
+                    that.changeImg();
+                    that.pageIndex = Math.floor(that.imageIndex / that.opt.thumMoveStep);
+                    that.moveThum();
+                }
+            });
+            that.$prevBtn.on('click', function () {
+                if (that.imageIndex > 0) {
+                    that.imageIndex--;
+                    that.changeImg();
+                    that.pageIndex = Math.floor(that.imageIndex / that.opt.thumMoveStep);
+                    that.moveThum();
+                }
+            });
+            that.$nextPageBtn.on('click', function () {
+                if (that.pageIndex < that.pageCount - 1) {
+                    that.pageIndex++;
+                    that.moveThum();
+                }
+            });
+            that.$prevPageBtn.on('click', function () {
+                if (that.pageIndex > 0) {
+                    that.pageIndex--;
+                    that.moveThum();
+                }
+            });
+
+            that.$bigImg.on({
+                "mousemove": function (event) {
+                    var x = event.offsetX || (event.clientX - that.$bigImg.offset().left);
+
+                    if (x < (that.$bigImg.width() / 2)) {
+                        //$imgWin.css("cursor", "pointer");
+                    }
+                    else {
+                        //$imgWin.css("cursor", "move");
+                    }
+                },
+                "mouseout": function () {
+                    //$imgWin.css("cursor", "auto");
+                },
+                "click": function (event) {
+                    var x = event.offsetX || (event.clientX - that.$bigImg.offset().left);
+
+                    if (x < (that.$bigImg.width() / 2)) {
+                        that.$prevBtn.trigger("click");
+                    }
+                    else {
+                        that.$nextBtn.trigger("click");
+                    }
+                }
+            })
+            $(document).on("keydown", function (event) {
+                var code = event.keyCode || event.which;
+                switch (code) {
+                    case 37:
+                        that.$prevBtn.trigger("click");
+                        break;
+                    case 39:
+                        that.$nextBtn.trigger("click");
+                        break;
+                    default:
+
+                }
+            })
+        },
+        changeImg: function () {
+            //获取原图并设置到大图位置
+            var $thum = this.$thumItems.eq(this.imageIndex);
+
+            $thum.addClass(this.opt.selectClass).siblings().removeClass(this.opt.selectClass);
+            this.$bigImg.hide().attr('src', $thum.find('a').attr('href')).fadeIn(this.opt.fadeSpeed);
+            this.setVisibleBtn();
+
+            this.opt.onImgChanged && this.opt.onImgChanged.call($thum, this.imageIndex);
+        },
+        moveThum: function () {
+            var pos = (this.$thumItems.outerWidth(true) * this.opt.thumMoveStep) * this.pageIndex
+            this.$thumbList.animate({ 'left': -pos }, this.opt.moveSpeed);
+
+            this.setVisibleBtn();
+        },
+        setVisibleBtn: function () {
+            this.$prevPageBtn.show();
+            this.$nextPageBtn.show();
+            this.$prevBtn.show();
+            this.$nextBtn.show();
+
+            if (this.pageIndex === 0) {
+                this.$prevPageBtn.hide();
+            }
+            if (this.pageIndex === this.pageCount - 1) {
+                this.$nextPageBtn.hide();
+            }
+            if (this.imageIndex === 0) {
+                this.$prevBtn.hide();
+            }
+            if (this.imageIndex === this.itemCount - 1) {
+                this.$nextBtn.hide();
+            }
+        }
+    }
+
+    $.fn.gallery = function (options) {
+
+
+        return this.each(function () {
+            return new Gallery($(this), options);
+        });
+    }
+})(jQuery, window, document);
