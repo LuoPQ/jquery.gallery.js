@@ -2,9 +2,13 @@
 基于jQuery的轻量级图片浏览插件
 
 1、轻量级的图片浏览插件，支持简单的动画效果
-2、不提高UI，只提供简单的接口，完全由开发人员自定义UI
+
+2、不提供UI，只提供简单的接口，完全由开发人员自定义UI
+
 3、支持设置默认的图片索引
+
 4、支持图片改变后的回调
+
 5、支持键盘操作切换图片
 
 ### 基本使用
@@ -121,8 +125,8 @@ ul { list-style-type: none; }
 |参数名|类型|默认值|描述|
 |-----|----|-----|---|
 |thumMoveStep|number|5|缩略图移动一次的数量|
-|moveSpeed|number|300(ms)|缩略图移动的时间|
-|fadeSpeed|number|300(ms_|图片切换淡入淡出的时间|
+|moveSpeed|number|300|缩略图移动的时间,单位毫秒|
+|fadeSpeed|number|300|图片切换淡入淡出的时间,单位毫秒|
 |selectClass|string|null|缩略图被选中的样式|
 |imageIndex|number|0|当前浏览的图片的索引|
 |bigImg|string|".bigImg"|当前浏览的大图标签的选择器|
