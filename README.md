@@ -121,7 +121,7 @@ ul { list-style-type: none; }
 ### Demo
 1、<a href="http://luopq.com/demo/gallery/examples/index.html" target="_blank">Demo</a>
 
-#### options
+### Options
 |参数名|类型|默认值|描述|
 |-----|----|-----|---|
 |thumMoveStep|number|5|缩略图移动一次的数量|
